@@ -39,7 +39,10 @@ void TextureManager::preload()
     load("dial_numbers",path+"Sources/Textures/dial_numbers.png");
     load("phone_icon",path+"Sources/Textures/phone_icon.png");
     load("delete_icon",path+"Sources/Textures/delete_icon.png");
-    load("storage_room",path+"Sources/Textures/storage_room.png");
+    load("storage_room",path+"Sources/Textures/storage_room_background.png");
+    load("storage_room_overlay",path+"Sources/Textures/storage_room.png");
+    load("shelf",path+"Sources/Textures/shelf.png");
+    load("shelf2",path+"Sources/Textures/shelf2.png");
 }
 
 TextureManager::TextureManager()

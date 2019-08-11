@@ -1,10 +1,177 @@
 #ifndef LIGHTING_H_INCLUDED
 #define LIGHTING_H_INCLUDED
 #include <SFML/Graphics.hpp>
-
+#include <iostream>
+#include "math.h"
 //namespace fp
 
+class FlashShadow
+{
+public:
+    FlashShadow(const sf::RectangleShape* rectangle, const sf::Vector2f* source)
+    :rect(rectangle)
+    {
+        this->source = source;
+        for(int i = 0; i<4; i++)
+        {
+            shadow[i].setPrimitiveType(sf::Quads);
+            shadow[i].resize(4);
+        }
+
+        shadow[0][0].position = sf::Vector2f(rect->getPosition().x-rect->getSize().x/2,rect->getPosition().y-rect->getSize().y/2);
+        shadow[0][1].position = sf::Vector2f(rect->getPosition().x-rect->getSize().x/2,rect->getPosition().y+rect->getSize().y/2);
+
+        shadow[1][0].position = sf::Vector2f(rect->getPosition().x-rect->getSize().x/2,rect->getPosition().y+rect->getSize().y/2);
+        shadow[1][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x/2,rect->getPosition().y+rect->getSize().y/2);
+
+        shadow[2][0].position = sf::Vector2f(rect->getPosition().x-rect->getSize().x/2,rect->getPosition().y-rect->getSize().y/2);
+        shadow[2][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x/2,rect->getPosition().y-rect->getSize().y/2);
+
+        shadow[3][0].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x/2,rect->getPosition().y-rect->getSize().y/2);
+        shadow[3][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x/2,rect->getPosition().y+rect->getSize().y/2);
+
+        for(int i = 0; i<4; i++)
+        {
+            for(int j = 0; j<4; j++)
+              shadow[i][j].color = sf::Color::Black;
+        }
+    }
+    void draw(sf::RenderWindow &window)
+    {
+        for(int i = 0; i<4; i++)
+        window.draw(shadow[i]);
+        //window.draw(shadow[0]);
+    }
+    void setLength(float lenght)
+    {
+        height = lenght;
+    }
+    virtual void update()
+    {
+        shadow[0][0].position = sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+1);
+        shadow[0][1].position = sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+rect->getSize().y+1);
+
+        shadow[1][0].position = sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+rect->getSize().y+1);
+        shadow[1][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+rect->getSize().y+1);
+
+        shadow[2][0].position = sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+1);
+        shadow[2][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+1);
+
+        shadow[3][0].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+1);
+        shadow[3][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+rect->getSize().y+1);
+        direction1[0] = sf::Vector2f(*(source)-sf::Vector2f(rect->getPosition().x,rect->getPosition().y+rect->getSize().y));
+        direction2[0] = sf::Vector2f(*(source)-sf::Vector2f(rect->getPosition().x,rect->getPosition().y));
+        shadow[0][2].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+rect->getSize().y+1)-sf::Vector2f(direction1[0].x*height,direction1[0].y*height));
+        shadow[0][3].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+1)-sf::Vector2f(direction2[0].x*height,direction2[0].y*height));
+
+        direction1[1] = sf::Vector2f(*(source)-sf::Vector2f(rect->getPosition().x+rect->getSize().x,rect->getPosition().y+rect->getSize().y));
+        direction2[1] = sf::Vector2f(*(source)-sf::Vector2f(rect->getPosition().x,rect->getPosition().y+rect->getSize().y));
+        shadow[1][2].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+rect->getSize().y+1)-sf::Vector2f(direction1[1].x*height,direction1[1].y*height));
+        shadow[1][3].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+rect->getSize().y+1)-sf::Vector2f(direction2[1].x*height,direction2[1].y*height));
+
+        direction1[2] = sf::Vector2f(*(source)-sf::Vector2f(rect->getPosition().x+rect->getSize().x,rect->getPosition().y));
+        direction2[2] = sf::Vector2f(*(source)-sf::Vector2f(rect->getPosition().x,rect->getPosition().y));
+        shadow[2][2].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+1)-sf::Vector2f(direction1[2].x*height,direction1[2].y*height));
+        shadow[2][3].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+1)-sf::Vector2f(direction2[2].x*height,direction2[2].y*height));
+
+        direction1[3] = sf::Vector2f(*(source)-sf::Vector2f(rect->getPosition().x+rect->getSize().x,rect->getPosition().y+rect->getSize().y));
+        direction2[3] = sf::Vector2f(*(source)-sf::Vector2f(rect->getPosition().x+rect->getSize().x,rect->getPosition().y));
+        shadow[3][2].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+rect->getSize().y+1)-sf::Vector2f(direction1[3].x*height,direction1[3].y*height));
+        shadow[3][3].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+1)-sf::Vector2f(direction2[3].x*height,direction2[3].y*height));
+    }
+private:
+    sf::VertexArray shadow[4];
+    sf::Vector2f direction1[4];
+    sf::Vector2f direction2[4];
+    const sf::RectangleShape* rect;
+    const sf::Vector2f* source;
+    float height = 0.1;
+};
+
 class Shadow
+{
+public:
+    Shadow(const sf::RectangleShape* rectangle, const sf::RectangleShape* source)
+    :rect(rectangle)
+    {
+        this->source = source;
+        for(int i = 0; i<4; i++)
+        {
+            shadow[i].setPrimitiveType(sf::Quads);
+            shadow[i].resize(4);
+        }
+
+        shadow[0][0].position = sf::Vector2f(rect->getPosition().x-rect->getSize().x/2,rect->getPosition().y-rect->getSize().y/2);
+        shadow[0][1].position = sf::Vector2f(rect->getPosition().x-rect->getSize().x/2,rect->getPosition().y+rect->getSize().y/2);
+
+        shadow[1][0].position = sf::Vector2f(rect->getPosition().x-rect->getSize().x/2,rect->getPosition().y+rect->getSize().y/2);
+        shadow[1][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x/2,rect->getPosition().y+rect->getSize().y/2);
+
+        shadow[2][0].position = sf::Vector2f(rect->getPosition().x-rect->getSize().x/2,rect->getPosition().y-rect->getSize().y/2);
+        shadow[2][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x/2,rect->getPosition().y-rect->getSize().y/2);
+
+        shadow[3][0].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x/2,rect->getPosition().y-rect->getSize().y/2);
+        shadow[3][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x/2,rect->getPosition().y+rect->getSize().y/2);
+
+        for(int i = 0; i<4; i++)
+        {
+            for(int j = 0; j<4; j++)
+              shadow[i][j].color = sf::Color::Black;
+        }
+    }
+    void draw(sf::RenderWindow &window)
+    {
+        for(int i = 0; i<4; i++)
+        window.draw(shadow[i]);
+        //window.draw(shadow[0]);
+    }
+    void setLength(float lenght)
+    {
+        height = lenght;
+    }
+    virtual void update()
+    {
+        shadow[0][0].position = sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+1);
+        shadow[0][1].position = sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+rect->getSize().y+1);
+
+        shadow[1][0].position = sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+rect->getSize().y+1);
+        shadow[1][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+rect->getSize().y+1);
+
+        shadow[2][0].position = sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+1);
+        shadow[2][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+1);
+
+        shadow[3][0].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+1);
+        shadow[3][1].position = sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+rect->getSize().y+1);
+        direction1[0] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect->getPosition().x,rect->getPosition().y+rect->getSize().y));
+        direction2[0] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect->getPosition().x,rect->getPosition().y));
+        shadow[0][2].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+rect->getSize().y+1)-sf::Vector2f(direction1[0].x*height,direction1[0].y*height));
+        shadow[0][3].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+1)-sf::Vector2f(direction2[0].x*height,direction2[0].y*height));
+
+        direction1[1] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect->getPosition().x+rect->getSize().x,rect->getPosition().y+rect->getSize().y));
+        direction2[1] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect->getPosition().x,rect->getPosition().y+rect->getSize().y));
+        shadow[1][2].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+rect->getSize().y+1)-sf::Vector2f(direction1[1].x*height,direction1[1].y*height));
+        shadow[1][3].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+rect->getSize().y+1)-sf::Vector2f(direction2[1].x*height,direction2[1].y*height));
+
+        direction1[2] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect->getPosition().x+rect->getSize().x,rect->getPosition().y));
+        direction2[2] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect->getPosition().x,rect->getPosition().y));
+        shadow[2][2].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+1)-sf::Vector2f(direction1[2].x*height,direction1[2].y*height));
+        shadow[2][3].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+1,rect->getPosition().y+1)-sf::Vector2f(direction2[2].x*height,direction2[2].y*height));
+
+        direction1[3] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect->getPosition().x+rect->getSize().x,rect->getPosition().y+rect->getSize().y));
+        direction2[3] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect->getPosition().x+rect->getSize().x,rect->getPosition().y));
+        shadow[3][2].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+rect->getSize().y+1)-sf::Vector2f(direction1[3].x*height,direction1[3].y*height));
+        shadow[3][3].position = sf::Vector2f(sf::Vector2f(rect->getPosition().x+rect->getSize().x+1,rect->getPosition().y+1)-sf::Vector2f(direction2[3].x*height,direction2[3].y*height));
+    }
+private:
+    sf::VertexArray shadow[4];
+    sf::Vector2f direction1[4];
+    sf::Vector2f direction2[4];
+    const sf::RectangleShape* rect;
+    const sf::RectangleShape* source;
+    float height = 0.1;
+};
+
+/*class Shadow
 {
 public:
     Shadow(const sf::RectangleShape& rectangle, const sf::RectangleShape* source)
@@ -43,36 +210,36 @@ public:
     }
     virtual void update(sf::RectangleShape& rect)
     {
-        shadow[0][0].position = sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2);
-        shadow[0][1].position = sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2);
+        shadow[0][0].position = sf::Vector2f(rect.getPosition().x,rect.getPosition().y);
+        shadow[0][1].position = sf::Vector2f(rect.getPosition().x,rect.getPosition().y+rect.getSize().y);
 
-        shadow[1][0].position = sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2);
-        shadow[1][1].position = sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2);
+        shadow[1][0].position = sf::Vector2f(rect.getPosition().x,rect.getPosition().y+rect.getSize().y);
+        shadow[1][1].position = sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y+rect.getSize().y);
 
-        shadow[2][0].position = sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2);
-        shadow[2][1].position = sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2);
+        shadow[2][0].position = sf::Vector2f(rect.getPosition().x,rect.getPosition().y);
+        shadow[2][1].position = sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y);
 
-        shadow[3][0].position = sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2);
-        shadow[3][1].position = sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2);
-        direction1[0] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2));
-        direction2[0] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2));
-        shadow[0][2].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2)-sf::Vector2f(direction1[0].x*height,direction1[0].y*height));
-        shadow[0][3].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2)-sf::Vector2f(direction2[0].x*height,direction2[0].y*height));
+        shadow[3][0].position = sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y);
+        shadow[3][1].position = sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y+rect.getSize().y);
+        direction1[0] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x,rect.getPosition().y+rect.getSize().y));
+        direction2[0] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x,rect.getPosition().y));
+        shadow[0][2].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x,rect.getPosition().y+rect.getSize().y)-sf::Vector2f(direction1[0].x*height,direction1[0].y*height));
+        shadow[0][3].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x,rect.getPosition().y)-sf::Vector2f(direction2[0].x*height,direction2[0].y*height));
 
-        direction1[1] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2));
-        direction2[1] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2));
-        shadow[1][2].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2)-sf::Vector2f(direction1[1].x*height,direction1[1].y*height));
-        shadow[1][3].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2)-sf::Vector2f(direction2[1].x*height,direction2[1].y*height));
+        direction1[1] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y+rect.getSize().y));
+        direction2[1] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x,rect.getPosition().y+rect.getSize().y));
+        shadow[1][2].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y+rect.getSize().y)-sf::Vector2f(direction1[1].x*height,direction1[1].y*height));
+        shadow[1][3].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x,rect.getPosition().y+rect.getSize().y)-sf::Vector2f(direction2[1].x*height,direction2[1].y*height));
 
-        direction1[2] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2));
-        direction2[2] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2));
-        shadow[2][2].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2)-sf::Vector2f(direction1[2].x*height,direction1[2].y*height));
-        shadow[2][3].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x-rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2)-sf::Vector2f(direction2[2].x*height,direction2[2].y*height));
+        direction1[2] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y));
+        direction2[2] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x,rect.getPosition().y));
+        shadow[2][2].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y)-sf::Vector2f(direction1[2].x*height,direction1[2].y*height));
+        shadow[2][3].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x,rect.getPosition().y)-sf::Vector2f(direction2[2].x*height,direction2[2].y*height));
 
-        direction1[3] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2));
-        direction2[3] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2));
-        shadow[3][2].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y+rect.getSize().y/2)-sf::Vector2f(direction1[3].x*height,direction1[3].y*height));
-        shadow[3][3].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x+rect.getSize().x/2,rect.getPosition().y-rect.getSize().y/2)-sf::Vector2f(direction2[3].x*height,direction2[3].y*height));
+        direction1[3] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y+rect.getSize().y));
+        direction2[3] = sf::Vector2f(source->getPosition()-sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y));
+        shadow[3][2].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y+rect.getSize().y)-sf::Vector2f(direction1[3].x*height,direction1[3].y*height));
+        shadow[3][3].position = sf::Vector2f(sf::Vector2f(rect.getPosition().x+rect.getSize().x,rect.getPosition().y)-sf::Vector2f(direction2[3].x*height,direction2[3].y*height));
     }
 private:
     sf::VertexArray shadow[4];
@@ -82,7 +249,7 @@ private:
     const sf::RectangleShape* source;
     int height = 3;
 };
-
+*/
 template<int points>
 class ComplexShadow
 {
@@ -102,7 +269,6 @@ public:
         {
             for(int j = 0; j<2; j++)
             {
-                std::cout<<"set"<<std::endl;
                 if(i == points-1 && j == 1)
                     shadow[i][j].position = sf::Vector2f(object[0].position);
                 else
@@ -172,7 +338,6 @@ public:
         {
             for(int j = 0; j<2; j++)
             {
-                std::cout<<"set"<<std::endl;
                 if(i == 8-1 && j == 1)
                     shadow[i][j].position = sf::Vector2f(object[0].position);
                 else

@@ -9,6 +9,8 @@
 #include "DialogueSystem.hpp"
 #include "Items.h"
 #include "Scene.h"
+#include "WoodsBase.hpp"
+#include "Flashlight.h"
 
 class GasStation : public SceneBase
 {
@@ -35,6 +37,8 @@ private:
     Items& items = Items::instance();
     int& scene;
     sf::Sprite car;
+    ForestObject forest;
+    Flashlight& light = Flashlight::instance();
 };
 
 #endif // GASSTATION_H

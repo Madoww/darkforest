@@ -37,6 +37,9 @@ GasStation::GasStation(int& scene)
     car.setScale(9,9);
     car.setPosition(20, 1080-car.getGlobalBounds().height+20);
     car.setTextureRect(sf::IntRect(0,0,80,60));
+    forest.loadDefaultForest();
+light.addSource(sf::Vector2f(barrel.getPosition().x+barrel.getGlobalBounds().width/2,barrel.getPosition().y-80),
+                sf::Vector2f(9,9),true);
 }
 
 GasStation::~GasStation()
@@ -91,6 +94,7 @@ void GasStation::draw(sf::RenderWindow& window)
     {
         window.draw(part);
     }
+    forest.draw(window);
     window.draw(gas);
     window.draw(house);
     window.draw(booth);
@@ -137,5 +141,8 @@ void GasStation::draw(sf::RenderWindow& window)
 
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::F))
+    {
         scene = 1;
+        Flashlight::instance().eraseSources();
+    }
 }

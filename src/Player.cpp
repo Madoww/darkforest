@@ -1,7 +1,7 @@
 #include "Player.h"
 
 Player::Player(const sf::Vector2f& window_size)
-:animation_check(4),standup_check(10),crouch_check(5),sit_check(4), drop_check(4)
+:animation_check(4),standup_check(10),crouch_check(5),sit_check(4), drop_check(4),anim_check(5)
 {
     m_player.setTexture(TextureManager::get("player"));
     m_player.setSize(sf::Vector2f(48,48));
@@ -18,7 +18,7 @@ Player::~Player()
 }
 void Player::draw(sf::RenderWindow& window)
 {
-    if(!is_animated && !block_movement)
+    if(!is_animated && !block_movement && !m_animated)
     {
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         right = false;
@@ -42,10 +42,10 @@ void Player::draw(sf::RenderWindow& window)
             animation_check.restart();
         }
     }
-    else if(!do_crouch && !do_sit)
+    else if(!do_crouch && !do_sit && !block_movement)
     {
         m_player.setTextureRect(sf::IntRect(0,0,64,64));
-        sourcex = 0;
+        //sourcex = 0;
     }
 
     if(right)
@@ -68,6 +68,46 @@ void Player::draw(sf::RenderWindow& window)
     {
         do_crouch=false;
         do_sit = false;
+    }
+    if(m_animated)
+    {
+        block_movement = true;
+        anim_check.update();
+        if(anim_check.getStatus())
+        {
+            if(sourcex < anim_lenght-1)
+            {
+                sourcex++;
+                m_player.setTextureRect(sf::IntRect(sourcex*64,0,64,64));
+            }
+            anim_check.restart();
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+            m_animated = false;
+    }
+    if(!m_animated && m_player.getTexture()==anim_tex)
+    {
+        anim_check.update();
+        if(anim_check.getStatus())
+        {
+            if(sourcex >0)
+            {
+                sourcex--;
+                m_player.setTextureRect(sf::IntRect(sourcex*64,0,64,64));
+            }
+            else
+            {
+                block_movement = false;
+                m_player.setTexture(TextureManager::get("player"));
+            }
+            
+            anim_check.restart();
+        }
+    }
+    if(!m_animated)
+    {
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+            quick_animate(TextureManager::get("crouch"), 6);
     }
     window.draw(m_player);
 }
@@ -114,7 +154,7 @@ void Player::crouch_animation()
                 sourcex++;
             }
         }
-        if(do_crouch==false && m_player.getTexture()==TextureManager::get("crouch"))
+        /*if(do_crouch==false && m_player.getTexture()==TextureManager::get("crouch"))
         {
             if(sourcex>0)
             {
@@ -127,7 +167,7 @@ void Player::crouch_animation()
                 is_animated=false;
                 animation_lenght=10;
             }
-        }
+        }*/
         crouch_check.restart();
     }
 }
@@ -178,7 +218,6 @@ void Player::drop_animation()
             if(sourcex < animation_lenght)
             {
                 sourcex++;
-                std::cout<<sourcex<<std::endl;
             }
             else
             {
@@ -207,3 +246,12 @@ void Player::drop_animation()
     }
 }
 
+void Player::quick_animate(const sf::Texture* tex, int length)
+{
+    if(m_player.getTexture()!=tex)
+        m_player.setTexture(tex);
+    m_animated = true;
+    anim_tex = tex;
+    anim_lenght = length;
+    sourcex = 0;
+}

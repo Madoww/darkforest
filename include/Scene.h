@@ -6,6 +6,7 @@ class SceneBase
 {
 public:
     virtual void draw(sf::RenderWindow&){};
+    virtual void draw_over(sf::RenderWindow&){};
     virtual ~SceneBase() = default;
 };
 

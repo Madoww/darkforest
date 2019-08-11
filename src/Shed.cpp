@@ -1,8 +1,8 @@
 #include "Shed.h"
 int Cross::tilted_amount = 0;
 
-Shed::Shed()
-:hatch_check(5),shadow1(s1,Player::instance().getPointer()),shadow2(s2,Player::instance().getPointer()),blood_check(4),wait_for_blood(200)
+Shed::Shed(int& scene)
+:hatch_check(5),shadow1(&s1,Player::instance().getPointer()),shadow2(&s2,Player::instance().getPointer()),blood_check(4),wait_for_blood(200),shelfs(2),basement_shadow_map("shadowmap.txt"),scene(scene)
 {
     background.setTexture(*TextureManager::get("inside"));
     background.setOrigin(background.getGlobalBounds().width/2,background.getGlobalBounds().height/2);
@@ -14,12 +14,10 @@ Shed::Shed()
     painting.setScale(8,8);
     s1.setSize(sf::Vector2f(78*background.getScale().x,2*background.getScale().y));
     s2.setSize(sf::Vector2f(12*background.getScale().x,2*background.getScale().y));
-    s1.setOrigin(s1.getSize().x/2,s2.getSize().y/2);
-    s1.setPosition(720+s1.getSize().x/2,background.getPosition().y+background.getGlobalBounds().height/2-2*background.getScale().y+s1.getSize().y+s1.getSize().y/2);
+    s1.setPosition(720,background.getPosition().y+background.getGlobalBounds().height/2-2*background.getScale().y+s1.getSize().y);
     s1.setFillColor(sf::Color::Red);
     s2.setFillColor(sf::Color::Red);
-    s2.setOrigin(s2.getSize().x/2,s2.getSize().y/2);
-    s2.setPosition(s1.getPosition().x+30*background.getScale().x+s1.getSize().x/2+s2.getSize().x/2,s1.getPosition().y);
+    s2.setPosition(s1.getPosition().x+30*background.getScale().x+s1.getSize().x,s1.getPosition().y);
     crosses.emplace_back(Cross(sf::Vector2f(700+400,500)));
     crosses.emplace_back(Cross(sf::Vector2f(800+400,200)));
     crosses.emplace_back(Cross(sf::Vector2f(820+400,400)));
@@ -34,9 +32,9 @@ Shed::Shed()
     basement.setColor(sf::Color(255,255,255,0));
     Player::instance().setPosition(sf::Vector2f(Player::instance().getPosition().x,590));
     if(!in_basement)
-    Player::instance().setPosition(sf::Vector2f(Player::instance().getPosition().x,690));
-    hatch.setSize(sf::Vector2f(s2.getPosition().x-s1.getPosition().x-s1.getSize().x/2,3));
-    hatch.setPosition(s1.getPosition().x+s1.getSize().x/2+200,s1.getPosition().y-35);
+    //Player::instance().setPosition(sf::Vector2f(Player::instance().getPosition().x,690));
+    hatch.setSize(sf::Vector2f(s2.getPosition().x-s1.getPosition().x,3));
+    hatch.setPosition(s1.getPosition().x+s1.getSize().x+180,s1.getPosition().y-35);
     blood.setTexture(*TextureManager::get("blood_drop"));
     blood.setPosition(1115,544);
     blood.setScale(8,8);
@@ -47,6 +45,20 @@ Shed::Shed()
     corridor.setPosition(700,374);
 
     door.setSize(sf::Vector2f(45*basement.getScale().x,73*basement.getScale().y));
+    for(auto& shelf :shelfs)
+    {
+        shelf.setScale(10,10);
+    }
+    shelfs[0].setTexture(*TextureManager::get("shelf"));
+    shelfs[1].setTexture(*TextureManager::get("shelf2"));
+    shelfs[0].setPosition(900,300);
+    shelfs[1].setPosition(1800,300);
+    shadow1.setLength(3);
+    shadow2.setLength(3);
+    storage_room_overlay.setTexture(*TextureManager::get("storage_room_overlay"));
+    storage_room_overlay.setScale(5,5);
+    ladder.setSize(sf::Vector2f(17*corridor.getScale().x,94*corridor.getScale().y));
+    ladder.setFillColor(sf::Color(111,111,111,111));
 }
 
 Shed::~Shed()
@@ -58,7 +70,6 @@ void Shed::draw(sf::RenderWindow& window)
 {
     player.allow_stand = false;
     door.setPosition(sf::Vector2f(basement.getPosition().x+28*basement.getScale().x,basement.getPosition().y+22*basement.getScale().y));
-    std::cout<<basement.getPosition().y<<std::endl;
     if(in_basement){
     if(!Player::instance().is_animated)
     {
@@ -67,7 +78,7 @@ void Shed::draw(sf::RenderWindow& window)
             if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
                 in_basement = false;
         }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !player.m_animated)
     {
         painting.move(Player::instance().speed,0);
         background.move(Player::instance().speed,0);
@@ -80,7 +91,7 @@ void Shed::draw(sf::RenderWindow& window)
         blood.move(Player::instance().speed,0);
     }
 
-    if((sf::Keyboard::isKeyPressed(sf::Keyboard::D) || Player::instance().move_player == true) && !Player::instance().block_movement)
+    if((sf::Keyboard::isKeyPressed(sf::Keyboard::D) || Player::instance().move_player == true) && !Player::instance().block_movement && !player.m_animated)
     {
         painting.move(-Player::instance().speed,0);
         background.move(-Player::instance().speed,0);
@@ -103,7 +114,7 @@ void Shed::draw(sf::RenderWindow& window)
     {
         Player::instance().move_player = true;
     }
-    if(Player::instance().getPosition().x>s1.getPosition().x+s1.getSize().x/2 && Player::instance().move_player == true && player.do_drop==false)
+    if(Player::instance().getPosition().x>s1.getPosition().x+s1.getSize().x && Player::instance().move_player == true && player.do_drop==false)
     {
         Player::instance().sit();
         Player::instance().move_player = false;
@@ -131,7 +142,7 @@ void Shed::draw(sf::RenderWindow& window)
         basement.move(falling_speed);
         hatch.move(falling_speed);
         blood.move(falling_speed);
-        camera.zoom(0.998);
+        camera.zoom(0.99);
     }
     hatch_check.update();
     if(open_hatch && hatch_check.getStatus())
@@ -164,9 +175,9 @@ void Shed::draw(sf::RenderWindow& window)
     window.draw(basement);
     window.draw(background);
     window.draw(painting);
-    shadow1.update(s1);
+    shadow1.update();
     shadow1.draw(window);
-    shadow2.update(s2);
+    shadow2.update();
     shadow2.draw(window);
     window.draw(blood);
     for(int i = 0; i<crosses.size(); i++)
@@ -184,13 +195,36 @@ void Shed::draw(sf::RenderWindow& window)
     }
     else
     {
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        storage_room_overlay.setPosition(corridor.getPosition());
+        ladder.setPosition(corridor.getPosition().x+370*corridor.getScale().x,corridor.getPosition().y);
+        Flashlight::setLevel(255);
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !player.m_animated)
         {
             corridor.move(player.speed,0);
+            for(auto& shelf : shelfs)
+                shelf.move(player.speed+3,0);
         }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        if((sf::Keyboard::isKeyPressed(sf::Keyboard::D) || player.move_player) && !player.m_animated)
+        {
             corridor.move(-player.speed,0);
+            for(auto& shelf : shelfs)
+                shelf.move(-player.speed-3,0);
+        }
         window.draw(corridor);
+        basement_shadow_map.draw(window);
+        basement_shadow_map.update(corridor.getPosition());
+        window.draw(storage_room_overlay);
+        window.draw(ladder);
+        if(ladder.getGlobalBounds().contains(Click::instance().getPosition()))
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::F))
+            {
+                camera.reset();
+                scene++;
+            }
+        if(ladder.getGlobalBounds().contains(player.getPosition()))
+            player.move_player = false;
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+            player.move_player = true;
     }
 
 }
@@ -201,6 +235,15 @@ void Cross::draw(sf::RenderWindow& window)
         cross.setRotation(cross.getRotation()+1);
     }
     window.draw(cross);
+}
+void Shed::draw_over(sf::RenderWindow& window)
+{
+    if(!in_basement)
+    {
+        for(auto& shelf : shelfs)
+        window.draw(shelf);
+    }
+
 }
 void Cross::tilt()
 {

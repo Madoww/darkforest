@@ -32,7 +32,7 @@ Click::~Click()
 }
 void Click::update(sf::RenderWindow& window)
 {
-    click.setPosition(static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)));
+    click.setPosition(world_pos);
     mousePos = sf::Mouse::getPosition(window);
     world_pos = window.mapPixelToCoords(mousePos);
 }

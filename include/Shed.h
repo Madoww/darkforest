@@ -8,6 +8,10 @@
 #include "Player.h"
 #include "CameraSystem.h"
 #include "DialogueSystem.hpp"
+#include "Flashlight.h"
+#include "ShadowMap.h"
+#include "Flashlight.h"
+#include <vector>
 
 class Cross
 {
@@ -34,9 +38,10 @@ private:
 class Shed : public SceneBase
 {
 public:
-    Shed();
+    Shed(int& scene);
     virtual ~Shed();
     void draw(sf::RenderWindow& window)override;
+    void draw_over(sf::RenderWindow& window)override;
 private:
     sf::Sprite background;
     sf::RectangleShape hatch;
@@ -58,9 +63,14 @@ private:
     CameraSystem& camera = CameraSystem::instance();
     sf::Sprite basement;
     sf::Sprite corridor;
+    sf::Sprite storage_room_overlay;
     sf::RectangleShape door;
     bool is_tilted = false;
-    bool in_basement = false;
+    bool in_basement = true;
+    std::vector<sf::Sprite> shelfs;
+    ShadowMap basement_shadow_map;
+    int& scene;
+    sf::RectangleShape ladder;
 };
 
 #endif // SHED_H

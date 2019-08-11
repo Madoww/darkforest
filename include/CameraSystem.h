@@ -16,6 +16,7 @@ public:
     const sf::View& getView()const{return view;}
     const sf::View& getDefaultView(){return default_view;}
     void zoom(float);
+    void reset(){view.reset(sf::FloatRect(0,0,1920,1080));}
     Check zoom_check;
 private:
     sf::View view;

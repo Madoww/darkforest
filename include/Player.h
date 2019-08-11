@@ -34,6 +34,8 @@ public:
     void reset_animation(){sourcex = 0;m_player.setTextureRect(sf::IntRect(sourcex*64,0,64,64));}
     bool allow_stand = true;
     bool is_sitting = false;
+    void quick_animate(const sf::Texture*,int);
+    Check anim_check;
 virtual ~Player();
 private:
     sf::RectangleShape m_player;
@@ -50,11 +52,15 @@ private:
 
     int animation_lenght = 10;
     sf::Vector2f window_size;
+    const sf::Texture* anim_tex;
+    int anim_lenght;
 public:
+    bool is_walking = false;
     bool do_crouch = false;
     bool do_sit = false;
     bool do_drop = false;
     bool falling = false;
+    bool m_animated = false;
 };
 
 #endif // PLAYER_H

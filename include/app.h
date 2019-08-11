@@ -13,6 +13,7 @@
 #include "Items.h"
 #include "Effects.hpp"
 #include "CameraSystem.h"
+#include "Forest2.hpp"
 
 enum Status
 {
@@ -25,7 +26,8 @@ enum Scene
 {
     GasStationScene = 0,
     Woods,
-    ShedScene
+    ShedScene,
+    Woods2
 };
 
 class app
@@ -41,19 +43,16 @@ class app
         }
         void setScene(int get){scene=get;}
         void run();
-        int scene = Scene::ShedScene;
+        int scene = Scene::Woods2;
     private:
         app();
         sf::RenderWindow m_window;
         Status m_status;
         sf::Sprite obj;
-        Forest f;
-        //Shed shed;
         std::vector<SceneBase*>scenes;
-        GasStation gas;
         Player& player = Player::instance();
         Phone& phone = Phone::instance();
-        Flashlight torch;
+        Flashlight& torch = Flashlight::instance();
         CameraSystem& camera = CameraSystem::instance();
         InventorySystem& inventory = InventorySystem::instance();
     Items& items = Items::instance();
