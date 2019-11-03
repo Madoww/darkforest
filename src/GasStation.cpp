@@ -146,7 +146,6 @@ void GasStation::update()
     if(phone.getCamera().intersects(barrel.getGlobalBounds()) && sf::Mouse::isButtonPressed(sf::Mouse::Right))
     {
         notes.add_note("Barrel","Hey, thats a really nice barrel. Warm");
-        notes.add_note("Barre2","Hey, thats a really nice barrel. Warm");
         Screenshot::instance().take();
     }
     if(sf::Mouse::isButtonPressed(sf::Mouse::Left))

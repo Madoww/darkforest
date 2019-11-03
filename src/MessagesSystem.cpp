@@ -10,6 +10,7 @@ Message::Message(std::string title_string,std::string inside_string, const sf::V
     title.setString(title_string);
     background.setOrigin(background.getSize().x/2,background.getSize().y/2.5);
     title.setOrigin(title.getGlobalBounds().width/2,title.getGlobalBounds().height/2);
+    background.setFillColor(sf::Color(128, 128, 128));
     title.setPosition(background.getPosition());
     background.setOutlineColor(sf::Color::Black);
     background.setOutlineThickness(2);
@@ -33,6 +34,7 @@ Message::Message(std::string title_string,std::string inside_string, const sf::V
     preview.setString(temp);
 
 
+    note_background.setFillColor(sf::Color(128, 128, 128));
     note_background.setSize(sf::Vector2f(185,330));
 }
 void Message::setPosition(const sf::Vector2f& position, sf::Vector2f def_pos)
@@ -98,10 +100,11 @@ void MessagesSystem::setPosition(const sf::Vector2f& position)
 MessagesSystem::MessagesSystem()
 :message_open_check(20)
 {
-    messages.emplace_back(Message("Damn1","kurde belka",sf::Vector2f(200,200)));
+    messages.emplace_back(Message("Dad","Where you at?",sf::Vector2f(200,200)));
     add_message("Mom", "Honey are you okay? Me and dad have been trying to contact you for the past 2 hours. Please text me as soon as you can.");
     messages[0].setFont(font.font);
     background.setSize(sf::Vector2f(185,330));
+    background.setFillColor(sf::Color(100,100,100));
 }
 
 void Message::move(float x)

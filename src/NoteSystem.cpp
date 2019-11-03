@@ -11,6 +11,7 @@ Note::Note(std::string title_string,std::string inside_string, const sf::Vector2
     background.setOrigin(background.getSize().x/2,background.getSize().y/2.5);
     title.setOrigin(title.getGlobalBounds().width/2,title.getGlobalBounds().height/2);
     title.setPosition(background.getPosition());
+    background.setFillColor(sf::Color(128, 128, 128));
     background.setOutlineColor(sf::Color::Black);
     background.setOutlineThickness(2);
 
@@ -21,6 +22,7 @@ Note::Note(std::string title_string,std::string inside_string, const sf::Vector2
     std::cout<<position.y<<std::endl;
 
     note_background.setSize(sf::Vector2f(185,330));
+    note_background.setFillColor(sf::Color(128, 128, 128));
 }
 void Note::setPosition(const sf::Vector2f& position, sf::Vector2f def_pos)
 {
@@ -82,10 +84,11 @@ void NoteSystem::setPosition(const sf::Vector2f& position)
 NoteSystem::NoteSystem()
 :note_open_check(20)
 {
-    notes.emplace_back(Note("Damn1","kurde belka",sf::Vector2f(200,0)));
+    notes.emplace_back(Note("To do","-Add a pin to my phone \n -Explore the forest",sf::Vector2f(200,0)));
     notes[0].setFont(font.font);
     background.setPosition(1700,1080);
     background.setSize(sf::Vector2f(185,330));
+    background.setFillColor(sf::Color(100, 100, 100));
 }
 
 NoteSystem::~NoteSystem()
