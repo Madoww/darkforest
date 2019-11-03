@@ -12,7 +12,7 @@ Forest::Forest(int& scene)
     roof.setTexture(TextureManager::get("roof"));
     house.setTexture(TextureManager::get("house"));
     forest.loadDefaultForest();
-    
+
     grass.setTexture(*TextureManager::get("ground"));
     grass.setPosition(0,900-grass.getGlobalBounds().height-100);
     forest.add_object(forest_object(sf::Vector2f(2000+(-10+rand()%20),-20),2,TextureManager::get("booth")));
@@ -54,6 +54,22 @@ void Forest::draw(sf::RenderWindow& window)
     if(scene==1)
         window.draw(path);
     window.draw(grass);
+
+    forest.draw(window);
+    //window.draw(road);
+    trunk_status.update();
+
+    if(scene==1)
+    {
+       window.draw(car);
+        window.draw(house);
+        window.draw(roof);
+    }
+
+}
+void Forest::update()
+{
+    forest.update();
     if(!player.is_animated && scene==1){
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
@@ -75,10 +91,6 @@ void Forest::draw(sf::RenderWindow& window)
         trunk.move(-Player::instance().speed,0);
     }
     }
-
-    forest.draw(window);
-    //window.draw(road);
-    trunk_status.update();
     if(trunk.getGlobalBounds().contains(Click::instance().getPosition()) && trunk_status.getStatus() && sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
         if(trunkopen == false)
@@ -133,15 +145,7 @@ void Forest::draw(sf::RenderWindow& window)
     {
         Player::instance().crouch();
     }
-    if(scene==1)
-    {
-       window.draw(car);
-        window.draw(house);
-        window.draw(roof);
-    }
-
 }
-
 void Forest::resetPosition()
 {
     /*for(int i = 0; i<objects.size(); i++)

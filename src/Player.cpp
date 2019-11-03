@@ -4,17 +4,22 @@ Player::Player(const sf::Vector2f& window_size)
 :animation_check(4),standup_check(10),crouch_check(5),sit_check(4), drop_check(4),anim_check(5)
 {
     m_player.setTexture(TextureManager::get("player"));
-    m_player.setSize(sf::Vector2f(48,48));
-    m_player.setScale(starting_scale,starting_scale);
-    m_player.setOrigin(24,24);
+    m_player.setSize(sf::Vector2f(64,64));
+    m_player.setScale(1,starting_scale);
+    m_player.setOrigin(m_player.getSize().x/2,m_player.getSize().y/2);
     m_player.setPosition(sf::Vector2f(window_size.x/2,window_size.y-m_player.getGlobalBounds().height+330));
-    m_player.setTextureRect(sf::IntRect(0,0,48,48));
+    m_player.setTextureRect(sf::IntRect(0,0,64,64));
+    speed = 6;
     this->window_size = window_size;
 }
 
 Player::~Player()
 {
     //dtor
+}
+void Player::move(float x)
+{
+    m_player.move(x, 0);
 }
 void Player::draw(sf::RenderWindow& window)
 {
@@ -100,7 +105,7 @@ void Player::draw(sf::RenderWindow& window)
                 block_movement = false;
                 m_player.setTexture(TextureManager::get("player"));
             }
-            
+
             anim_check.restart();
         }
     }

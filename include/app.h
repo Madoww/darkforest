@@ -14,6 +14,10 @@
 #include "Effects.hpp"
 #include "CameraSystem.h"
 #include "Forest2.hpp"
+#include "Rain.h"
+#include "Enemies.h"
+#include "Screenshot.h"
+
 
 enum Status
 {
@@ -49,15 +53,21 @@ class app
         sf::RenderWindow m_window;
         Status m_status;
         sf::Sprite obj;
+        sf::Sprite background;
         std::vector<SceneBase*>scenes;
         Player& player = Player::instance();
         Phone& phone = Phone::instance();
         Flashlight& torch = Flashlight::instance();
         CameraSystem& camera = CameraSystem::instance();
         InventorySystem& inventory = InventorySystem::instance();
+    sf::RectangleShape cover;
+    Rain rain;
     Items& items = Items::instance();
     DialogSystem& dialog = DialogSystem::instance();
     Leafs& leafs = Leafs::instance();
+    Screenshot& screenshot = Screenshot::instance();
+    Photos& photos = Photos::instance();
+    NoteSystem& notes = NoteSystem::instance();
 };
 
 #endif // APP_H

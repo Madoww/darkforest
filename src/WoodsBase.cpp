@@ -1,11 +1,3 @@
-//
-//  WoodsBase.cpp
-//  dark_forest
-//
-//  Created by Filip Szafran on 07/08/2019.
-//  Copyright © 2019 Filip Szafran. All rights reserved.
-//
-
 #include "WoodsBase.hpp"
 
 forest_object::forest_object(const sf::Vector2f& position, float distance, sf::Texture* tex,const sf::Vector2f& window_size_ref)
@@ -24,8 +16,6 @@ forest_object::forest_object(const sf::Vector2f& position, float distance, sf::T
             tree.setPosition(tree.getPosition().x+tree.getGlobalBounds().width,tree.getPosition().y);
         }
     }
-    
-    
     else
     {
         tree.setScale(3,3);
@@ -36,15 +26,18 @@ forest_object::forest_object(const sf::Vector2f& position, float distance, sf::T
     }
     int color = rand()%40;
     tree.setColor(sf::Color(255-color,255-color,255-color));
+    //tree.setColor(sf::Color(255-color,255-color,255-color));
     tree.setPosition(position.x-20,window_size_ref.y-tree.getGlobalBounds().height-distance*30-140);
     if(tex == TextureManager::get("tree"))
         tree.setPosition(tree.getPosition().x+100,tree.getPosition().y-20);
-    tree.setColor(sf::Color(tree.getColor().r-distance*16,tree.getColor().g-distance*16,tree.getColor().b-distance*16));
+    //tree.setColor(sf::Color(tree.getColor().r-distance*23,tree.getColor().g-distance*23,tree.getColor().b-distance*23));
     tree.setPosition(tree.getPosition().x-1000,tree.getPosition().y+200);
     if(tree.getTexture()==TextureManager::get("grass"))
         m_distance = distance;
-    else
+    else if(tree.getTexture()==TextureManager::get("tree"))
         m_distance = distance+(float)(rand()%20)/10;
+    else
+        m_distance = distance+2;
     if(tex == TextureManager::get("tree"))
     {
         if(rand()%3==1)
@@ -76,19 +69,10 @@ void forest_object::draw(sf::RenderWindow& window)
 
 void ForestObject::draw(sf::RenderWindow& window)
 {
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-    {
-        for(auto& obj : objects)
-            move(obj,false);
-    }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-    {
-        for(auto& obj : objects)
-            move(obj,true);
-    }
     for(auto& obj : objects)
     {
-        obj.draw(window);
+        if(flash.getDrawArea().intersects(obj.getGlobalBounds()))
+            obj.draw(window);
     }
 }
 
@@ -96,18 +80,24 @@ void ForestObject::add_object(forest_object&& object)
 {
     objects.emplace_back(std::move(object));
 }
-void ForestObject::add_position(float position)
+void ForestObject::add_position(float positionx, float positiony)
 {
     for(auto& obj : objects)
     {
-        obj.setPosition(sf::Vector2f(obj.getPosition().x,obj.getDefaultPosition().y+position));
+        obj.setPosition(sf::Vector2f(obj.getPosition().x+positionx,obj.getPosition().y+positiony));
     }
+}
+void ForestObject::sunset()
+{
+    int color = rand()%40;
+    for(auto& f : objects)
+        f.setColor(sf::Color(255-color,80-color,160-color));
 }
 void ForestObject::loadDefaultForest()
 {
     for(int i = 1; i<161; i++)
     {
-    add_object(forest_object(sf::Vector2f(i*50+(-40+rand()%80),0),rand()%3+1,TextureManager::get("tree"),sf::Vector2f(1600,900)));
+        add_object(forest_object(sf::Vector2f(i*50+(-40+rand()%80),0),rand()%3+1,TextureManager::get("tree"),sf::Vector2f(1600,900)));
         add_object(forest_object(sf::Vector2f(i*50+(-40+rand()%80),0),rand()%3+4,TextureManager::get("tree")));
         add_object(forest_object(sf::Vector2f(i*50+(-40+rand()%80),0),rand()%3+7,TextureManager::get("tree")));
     }
@@ -123,11 +113,39 @@ void ForestObject::loadDefaultForest()
         add_object(forest_object(sf::Vector2f(i*60+(-10+rand()%20),0),5,TextureManager::get("grass")));
         add_object(forest_object(sf::Vector2f(i*60+(-10+rand()%20),0),6,TextureManager::get("grass")));
     }
-    for(int i = 0; i<100; i++)
+    for(int i = 0; i<200; i++)
     {
         add_object(forest_object(sf::Vector2f(i*60+(-10+rand()%20),0),7,TextureManager::get("grass")));
         add_object(forest_object(sf::Vector2f(i*60+(-10+rand()%20),0),8,TextureManager::get("grass")));
         add_object(forest_object(sf::Vector2f(i*60+(-10+rand()%20),0),9,TextureManager::get("grass")));
     }
     sort();
+}
+void ForestObject::move_forest(int speed)
+{
+    if(speed>0)
+    {
+        for(auto& obj : objects)
+            move(obj,false);
+    }
+    else
+    {
+        for(auto& obj : objects)
+            move(obj,true);
+    }
+}
+void ForestObject::update()
+{
+    if(!player.block_movement){
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+    {
+        for(auto& obj : objects)
+            move(obj,false);
+    }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+    {
+        for(auto& obj : objects)
+            move(obj,true);
+    }
+    }
 }

@@ -6,10 +6,12 @@
 #include "ClickCheck.h"
 #include "Fonts.h"
 #include "patch.h"
+#include "ButtonPressed.h"
 
 class DialSystem
 {
 public:
+    void update();
     void draw(sf::RenderWindow&);
     void setPosition(const sf::Vector2f& position);
     inline static DialSystem& instance()
@@ -30,7 +32,10 @@ private:
     Check check;
     Check delete_check;
     int numbers_entered = 0;
+    bool calling = false;
     DialSystem();
+    sf::Sprite call_background;
+    sf::Sprite cancel;
 };
 
 #endif /* DialSystem_hpp */

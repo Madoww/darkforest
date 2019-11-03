@@ -43,6 +43,18 @@ void TextureManager::preload()
     load("storage_room_overlay",path+"Sources/Textures/storage_room.png");
     load("shelf",path+"Sources/Textures/shelf.png");
     load("shelf2",path+"Sources/Textures/shelf2.png");
+    load("bunker",path+"Sources/Textures/bunker.png");
+    load("lamp",path+"Sources/Textures/lamp.png");
+    load("phone_menu_bar",path+"Sources/Textures/phone_menu.png");
+    load("camera_background",path+"Sources/Textures/camera_background.png");
+    load("call_background",path+"Sources/Textures/call_background.png");
+    load("hang_up",path+"Sources/Textures/hang_up.png");
+    load("villager",path+"Sources/Textures/villager.png");
+    load("cross_big",path+"Sources/Textures/cross_big.png");
+    load("sunset",path+"Sources/Textures/sunset.png");
+    load("village_house",path+"Sources/Textures/village_house.png");
+    load("church",path+"Sources/Textures/church.png");
+    load("church_inside",path+"Sources/Textures/church_inside.png");
 }
 
 TextureManager::TextureManager()

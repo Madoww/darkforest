@@ -1,4 +1,5 @@
 #include "GasStation.h"
+#include <array>
 
 GasStation::GasStation(int& scene)
 :scene(scene),fire_check(5)
@@ -22,9 +23,11 @@ GasStation::GasStation(int& scene)
     fire.setScale(4,4);
     fire.setPosition(barrel.getPosition().x+7,barrel.getPosition().y-barrel.getGlobalBounds().height+80);
     fire.setTextureRect(sf::IntRect(0,0,18,30));
+    sf::Color sunset(255, 119+20, 69+20);
     for(int i = 0; i<4; i++)
     {
         path.setPosition(i*path.getGlobalBounds().width,1080-path.getGlobalBounds().height);
+        path.setColor(sunset);
         ground.push_back(path);
     }
     part.setSize(sf::Vector2f(5,5));
@@ -38,8 +41,15 @@ GasStation::GasStation(int& scene)
     car.setPosition(20, 1080-car.getGlobalBounds().height+20);
     car.setTextureRect(sf::IntRect(0,0,80,60));
     forest.loadDefaultForest();
-light.addSource(sf::Vector2f(barrel.getPosition().x+barrel.getGlobalBounds().width/2,barrel.getPosition().y-80),
-                sf::Vector2f(9,9),true);
+    light.addSource(sf::Vector2f(barrel.getPosition().x+barrel.getGlobalBounds().width/2,barrel.getPosition().y-80),
+                sf::Vector2f(11,11),true,20);
+    gas.setColor(sunset);
+    car.setColor(sunset);
+    barrel.setColor(sunset);
+    booth.setColor(sunset);
+    house.setColor(sunset);
+    player.setColor(sunset);
+    forest.sunset();
 }
 
 GasStation::~GasStation()
@@ -49,6 +59,28 @@ GasStation::~GasStation()
 
 void GasStation::draw(sf::RenderWindow& window)
 {
+    for(auto& part : ground)
+    {
+        window.draw(part);
+    }
+    forest.draw(window);
+    window.draw(gas);
+    window.draw(house);
+    window.draw(booth);
+    window.draw(barrel);
+    window.draw(crow);
+    window.draw(car);
+    //window.draw(fire);
+
+    for(int i = 0; i<particles.size(); i++)
+    {
+        window.draw(particles[i]);
+    }
+
+}
+void GasStation::update()
+{
+    forest.update();
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
         for(auto& part : ground)
@@ -90,18 +122,6 @@ void GasStation::draw(sf::RenderWindow& window)
         }
         if(sourcex == 4)
                 sourcex = 0;
-    for(auto& part : ground)
-    {
-        window.draw(part);
-    }
-    forest.draw(window);
-    window.draw(gas);
-    window.draw(house);
-    window.draw(booth);
-    window.draw(barrel);
-    window.draw(crow);
-    window.draw(car);
-    //window.draw(fire);
     if(particles.size()<400)
     {
         if(rand()%2==0)
@@ -122,13 +142,12 @@ void GasStation::draw(sf::RenderWindow& window)
             particles[i].setFillColor(sf::Color(particles[i].getFillColor().r,particles[i].getFillColor().g,particles[i].getFillColor().b,particles[i].getFillColor().a-5));
             particles[i].move(-2+rand()%5,-2);
         }
-
-        window.draw(particles[i]);
     }
     if(phone.getCamera().intersects(barrel.getGlobalBounds()) && sf::Mouse::isButtonPressed(sf::Mouse::Right))
     {
         notes.add_note("Barrel","Hey, thats a really nice barrel. Warm");
-        phone.turn_off_camera();
+        notes.add_note("Barre2","Hey, thats a really nice barrel. Warm");
+        Screenshot::instance().take();
     }
     if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
@@ -143,6 +162,7 @@ void GasStation::draw(sf::RenderWindow& window)
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::F))
     {
         scene = 1;
+        player.setColor(sf::Color::White);
         Flashlight::instance().eraseSources();
     }
 }

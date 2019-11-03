@@ -32,7 +32,6 @@ Shed::Shed(int& scene)
     basement.setColor(sf::Color(255,255,255,0));
     Player::instance().setPosition(sf::Vector2f(Player::instance().getPosition().x,590));
     if(!in_basement)
-    //Player::instance().setPosition(sf::Vector2f(Player::instance().getPosition().x,690));
     hatch.setSize(sf::Vector2f(s2.getPosition().x-s1.getPosition().x,3));
     hatch.setPosition(s1.getPosition().x+s1.getSize().x+180,s1.getPosition().y-35);
     blood.setTexture(*TextureManager::get("blood_drop"));
@@ -71,107 +70,7 @@ void Shed::draw(sf::RenderWindow& window)
     player.allow_stand = false;
     door.setPosition(sf::Vector2f(basement.getPosition().x+28*basement.getScale().x,basement.getPosition().y+22*basement.getScale().y));
     if(in_basement){
-    if(!Player::instance().is_animated)
-    {
-        if(door.getGlobalBounds().contains(Click::instance().getPosition()))
-        {
-            if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                in_basement = false;
-        }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !player.m_animated)
-    {
-        painting.move(Player::instance().speed,0);
-        background.move(Player::instance().speed,0);
-        s1.move(Player::instance().speed,0);
-        s2.move(Player::instance().speed,0);
-        for(int i = 0; i<crosses.size(); i++)
-            crosses[i].move(Player::instance().speed,0);
-        basement.move(Player::instance().speed,0);
-        hatch.move(Player::instance().speed,0);
-        blood.move(Player::instance().speed,0);
-    }
 
-    if((sf::Keyboard::isKeyPressed(sf::Keyboard::D) || Player::instance().move_player == true) && !Player::instance().block_movement && !player.m_animated)
-    {
-        painting.move(-Player::instance().speed,0);
-        background.move(-Player::instance().speed,0);
-        s1.move(-Player::instance().speed,0);
-        s2.move(-Player::instance().speed,0);
-        for(int i = 0; i<crosses.size(); i++)
-            crosses[i].move(-Player::instance().speed,0);
-        basement.move(-Player::instance().speed,0);
-        hatch.move(-Player::instance().speed,0);
-        blood.move(-Player::instance().speed,0);
-    }
-    else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        player.reset_animation();
-
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::F))// && Cross::tilted_amount >= 1
-    {
-        open_hatch = true;
-    }
-    if(open_hatch == true && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-    {
-        Player::instance().move_player = true;
-    }
-    if(Player::instance().getPosition().x>s1.getPosition().x+s1.getSize().x && Player::instance().move_player == true && player.do_drop==false)
-    {
-        Player::instance().sit();
-        Player::instance().move_player = false;
-    }
-    }
-    if(Player::instance().is_sitting == true && player.do_drop==false && player.getTexture()!=TextureManager::get("player_drop") && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-    {
-        player.drop();
-        open_hatch =false;
-    }
-    if(Player::instance().getGlobalBounds().intersects(hatch.getGlobalBounds()) && player.getPosition().y<hatch.getPosition().y)
-    {
-        Player::instance().block_movement=true;
-    }
-    else
-        Player::instance().block_movement=false;
-    if(player.falling)
-    {
-        painting.move(falling_speed);
-        background.move(falling_speed);
-        s1.move(falling_speed);
-        s2.move(falling_speed);
-        for(int i = 0; i<crosses.size(); i++)
-            crosses[i].move(falling_speed.x,falling_speed.y);
-        basement.move(falling_speed);
-        hatch.move(falling_speed);
-        blood.move(falling_speed);
-        camera.zoom(0.99);
-    }
-    hatch_check.update();
-    if(open_hatch && hatch_check.getStatus())
-    {
-        background.setTextureRect(sf::IntRect(sourcex*120,0,120,64));
-        if(sourcex<8)
-        {
-            basement.setColor(sf::Color(255,255,255,basement.getColor().a+255/8));
-            sourcex++;
-        }
-        hatch_check.restart();
-    }
-    blood_check.update();
-    wait_for_blood.update();
-    if(blood_check.getStatus())
-    {
-        blood.setTextureRect(sf::IntRect(bloodx*5,0,5,25));
-        if(bloodx<6)
-        {
-            bloodx++;
-        }
-
-        if(wait_for_blood.getStatus())
-        {
-            bloodx = 0;
-            wait_for_blood.restart();
-        }
-        blood_check.restart();
-    }
     window.draw(basement);
     window.draw(background);
     window.draw(painting);
@@ -195,6 +94,123 @@ void Shed::draw(sf::RenderWindow& window)
     }
     else
     {
+
+        window.draw(corridor);
+        basement_shadow_map.draw(window);
+        basement_shadow_map.update(corridor.getPosition());
+        window.draw(storage_room_overlay);
+        window.draw(ladder);
+    }
+
+}
+void Shed::update()
+{
+    if(in_basement)
+    {
+            if(!Player::instance().is_animated)
+        {
+            if(door.getGlobalBounds().contains(Click::instance().getPosition()))
+            {
+                if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                    in_basement = false;
+            }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !player.m_animated)
+        {
+            painting.move(Player::instance().speed,0);
+            background.move(Player::instance().speed,0);
+            s1.move(Player::instance().speed,0);
+            s2.move(Player::instance().speed,0);
+            for(int i = 0; i<crosses.size(); i++)
+                crosses[i].move(Player::instance().speed,0);
+            basement.move(Player::instance().speed,0);
+            hatch.move(Player::instance().speed,0);
+            blood.move(Player::instance().speed,0);
+        }
+
+        if((sf::Keyboard::isKeyPressed(sf::Keyboard::D) || Player::instance().move_player == true) && !Player::instance().block_movement && !player.m_animated)
+        {
+            painting.move(-Player::instance().speed,0);
+            background.move(-Player::instance().speed,0);
+            s1.move(-Player::instance().speed,0);
+            s2.move(-Player::instance().speed,0);
+            for(int i = 0; i<crosses.size(); i++)
+                crosses[i].move(-Player::instance().speed,0);
+            basement.move(-Player::instance().speed,0);
+            hatch.move(-Player::instance().speed,0);
+            blood.move(-Player::instance().speed,0);
+        }
+        else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+            player.reset_animation();
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::F))// && Cross::tilted_amount >= 1
+        {
+            open_hatch = true;
+        }
+        if(open_hatch == true && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
+            Player::instance().move_player = true;
+        }
+        if(Player::instance().getPosition().x>s1.getPosition().x+s1.getSize().x && Player::instance().move_player == true && player.do_drop==false)
+        {
+            Player::instance().sit();
+            Player::instance().move_player = false;
+        }
+        }
+        if(Player::instance().is_sitting == true && player.do_drop==false && player.getTexture()!=TextureManager::get("player_drop") && sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+        {
+            player.drop();
+            open_hatch =false;
+        }
+        if(Player::instance().getGlobalBounds().intersects(hatch.getGlobalBounds()) && player.getPosition().y<hatch.getPosition().y)
+        {
+            Player::instance().block_movement=true;
+        }
+        else
+            Player::instance().block_movement=false;
+        if(player.falling)
+        {
+            painting.move(falling_speed);
+            background.move(falling_speed);
+            s1.move(falling_speed);
+            s2.move(falling_speed);
+            for(int i = 0; i<crosses.size(); i++)
+                crosses[i].move(falling_speed.x,falling_speed.y);
+            basement.move(falling_speed);
+            hatch.move(falling_speed);
+            blood.move(falling_speed);
+            camera.zoom(0.99);
+        }
+        hatch_check.update();
+        if(open_hatch && hatch_check.getStatus())
+        {
+            background.setTextureRect(sf::IntRect(sourcex*120,0,120,64));
+            if(sourcex<8)
+            {
+                basement.setColor(sf::Color(255,255,255,basement.getColor().a+255/8));
+                sourcex++;
+            }
+            hatch_check.restart();
+        }
+        blood_check.update();
+        wait_for_blood.update();
+        if(blood_check.getStatus())
+        {
+            blood.setTextureRect(sf::IntRect(bloodx*5,0,5,25));
+            if(bloodx<6)
+            {
+                bloodx++;
+            }
+
+            if(wait_for_blood.getStatus())
+            {
+                bloodx = 0;
+                wait_for_blood.restart();
+            }
+            blood_check.restart();
+        }
+    }
+    else
+    {
         storage_room_overlay.setPosition(corridor.getPosition());
         ladder.setPosition(corridor.getPosition().x+370*corridor.getScale().x,corridor.getPosition().y);
         Flashlight::setLevel(255);
@@ -210,11 +226,6 @@ void Shed::draw(sf::RenderWindow& window)
             for(auto& shelf : shelfs)
                 shelf.move(-player.speed-3,0);
         }
-        window.draw(corridor);
-        basement_shadow_map.draw(window);
-        basement_shadow_map.update(corridor.getPosition());
-        window.draw(storage_room_overlay);
-        window.draw(ladder);
         if(ladder.getGlobalBounds().contains(Click::instance().getPosition()))
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::F))
             {
@@ -226,7 +237,6 @@ void Shed::draw(sf::RenderWindow& window)
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
             player.move_player = true;
     }
-
 }
 void Cross::draw(sf::RenderWindow& window)
 {

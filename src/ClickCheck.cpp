@@ -1,5 +1,5 @@
 #include "ClickCheck.h"
-
+#include <iostream>
 Check::Check(int time)
 {
     r2.setPosition(time,0);

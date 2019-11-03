@@ -1,12 +1,5 @@
-//
-//  MessagesSystem.cpp
-//  dark_forest
-//
-//  Created by Filip Szafran on 24/06/2019.
-//  Copyright © 2019 Filip Szafran. All rights reserved.
-//
-
 #include "MessagesSystem.hpp"
+#include "Phone.h"
 
 Message::Message(std::string title_string,std::string inside_string, const sf::Vector2f& position)
 {
@@ -63,6 +56,7 @@ void Message::draw_message(sf::RenderWindow& window)
 {
     if(is_inside == true)
     {
+
         window.draw(note_background);
         window.draw(inside);
         sf::String temp = inside.getString();
@@ -107,6 +101,7 @@ MessagesSystem::MessagesSystem()
     messages.emplace_back(Message("Damn1","kurde belka",sf::Vector2f(200,200)));
     add_message("Mom", "Honey are you okay? Me and dad have been trying to contact you for the past 2 hours. Please text me as soon as you can.");
     messages[0].setFont(font.font);
+    background.setSize(sf::Vector2f(185,330));
 }
 
 void Message::move(float x)
@@ -121,7 +116,13 @@ void MessagesSystem::move(float x)
 }
 void MessagesSystem::draw(sf::RenderWindow& window, const sf::Vector2f& position)
 {
+    background.setPosition(position.x+35,position.y+45);
+    if(is_reading)
+        Phone::instance().enable_menu();
+    else
+        Phone::instance().disable_menu();
     message_open_check.update();
+    window.draw(background);
     for(int i = 0; i<messages.size(); i++)
     {
         for(int i = 0; i<messages.size(); i++)
@@ -141,7 +142,7 @@ void MessagesSystem::draw(sf::RenderWindow& window, const sf::Vector2f& position
         }
         messages[i].draw_message(window);
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) || Phone::instance().is_back_clicked())
     {
         is_reading = false;
         for(int i = 0; i<messages.size(); i++)

@@ -1,0 +1,39 @@
+#ifndef Photos_h
+#define Photos_h
+#include <vector>
+#include <SFML/Graphics.hpp>
+
+class Photo
+{
+ public:
+     Photo(sf::Texture*);
+    void draw(sf::RenderWindow&);
+    void setPosition(const sf::Vector2f& pos){photo.setPosition(pos);}
+    void setScale(float x, float y){photo.setScale(x,y);}
+    sf::Vector2f getPosition(){return photo.getPosition();}
+    const sf::FloatRect& getGlobalBounds(){return photo.getGlobalBounds();}
+ protected:
+    sf::Texture* tex;
+    sf::Sprite photo;
+};
+
+class Photos
+{
+public:
+    inline static Photos& instance()
+    {
+        static Photos temp;
+        return temp;
+    }
+    void update(const sf::Vector2f& position);
+    void draw(sf::RenderWindow&);
+    void setPosition(const sf::Vector2f&);
+    int screens_taken;
+private:
+    Photos();
+    sf::RectangleShape background;
+    int ypos = 0;
+    std::vector<Photo>photos;
+};
+
+#endif /* Photos_h */

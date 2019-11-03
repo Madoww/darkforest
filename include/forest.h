@@ -18,6 +18,7 @@ public:
     Forest(int& scene);
     virtual ~Forest();
     void draw(sf::RenderWindow& window)override ;
+    void update();
     void resetPosition();
 private:
     ForestObject forest;

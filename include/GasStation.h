@@ -11,6 +11,7 @@
 #include "Scene.h"
 #include "WoodsBase.hpp"
 #include "Flashlight.h"
+#include "Screenshot.h"
 
 class GasStation : public SceneBase
 {
@@ -18,6 +19,7 @@ public:
     GasStation(int& scene);
     virtual ~GasStation();
     void draw(sf::RenderWindow& window);
+    void update()override;
 private:
     sf::Sprite gas;
     sf::Sprite house;

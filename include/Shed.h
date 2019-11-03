@@ -42,6 +42,7 @@ public:
     virtual ~Shed();
     void draw(sf::RenderWindow& window)override;
     void draw_over(sf::RenderWindow& window)override;
+    void update()override;
 private:
     sf::Sprite background;
     sf::RectangleShape hatch;

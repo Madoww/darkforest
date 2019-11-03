@@ -24,6 +24,7 @@ public:
     void setStatus(bool status){is_inside = status;}
     bool getStatus(){return is_inside;}
     Fonts font;
+    float relative_pos;
 private:
     sf::RectangleShape background;
     sf::Text title;
@@ -46,6 +47,8 @@ public:
     void add_note(sf::String title, sf::String inside);
     void setPosition(const sf::Vector2f& position);
     void draw(sf::RenderWindow&, const sf::Vector2f& position);
+    void scroll_up();
+    void scroll_down();
     void restart_notecheck();
     void move(float x);
     bool is_reading = false;

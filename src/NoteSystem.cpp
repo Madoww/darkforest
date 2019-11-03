@@ -1,4 +1,5 @@
 #include "NoteSystem.h"
+#include "Phone.h"
 
 Note::Note(std::string title_string,std::string inside_string, const sf::Vector2f& position)
 {
@@ -16,6 +17,8 @@ Note::Note(std::string title_string,std::string inside_string, const sf::Vector2
     inside.setCharacterSize(10);
     inside.setFillColor(sf::Color::Black);
     inside.setString(inside_string);
+    relative_pos=position.y;
+    std::cout<<position.y<<std::endl;
 
     note_background.setSize(sf::Vector2f(185,330));
 }
@@ -72,14 +75,14 @@ void NoteSystem::setPosition(const sf::Vector2f& position)
         is_set = true;
         def_pos = position;
     }
-    notes[0].setPosition(sf::Vector2f(position.x+notes[0].getGlobalBounds().width/2+35,position.y+notes[0].getGlobalBounds().height/2+50),position);
+    notes[0].setPosition(sf::Vector2f(position.x+notes[0].getGlobalBounds().width/2+35,position.y+notes[0].getGlobalBounds().height/2+50+notes[0].relative_pos),position);
     for(int i = 1; i<notes.size(); i++)
         notes[i].setPosition(sf::Vector2f(notes[i-1].getPosition().x,notes[i-1].getPosition().y+notes[i-1].getGlobalBounds().height),position);
 }
 NoteSystem::NoteSystem()
 :note_open_check(20)
 {
-    notes.emplace_back(Note("Damn1","kurde belka",sf::Vector2f(200,200)));
+    notes.emplace_back(Note("Damn1","kurde belka",sf::Vector2f(200,0)));
     notes[0].setFont(font.font);
     background.setPosition(1700,1080);
     background.setSize(sf::Vector2f(185,330));
@@ -91,13 +94,19 @@ NoteSystem::~NoteSystem()
 }
 void Note::move(float x)
 {
-    background.move(0,x);
-    title.move(0,x);
+    relative_pos += x;
 }
-void NoteSystem::move(float x)
+void NoteSystem::scroll_up()
 {
+    if(notes[notes.size()-1].getPosition().y>background.getPosition().y+background.getGlobalBounds().height-50)
     for(auto& note : notes)
-        note.move(x);
+        note.move(-10);
+}
+void NoteSystem::scroll_down()
+{
+    if(notes[0].getPosition().y<background.getPosition().y+20)
+    for(auto& note : notes)
+        note.move(10);
 }
 void NoteSystem::draw(sf::RenderWindow& window, const sf::Vector2f& position)
 {
@@ -123,12 +132,16 @@ void NoteSystem::draw(sf::RenderWindow& window, const sf::Vector2f& position)
         }
         notes[i].draw_note(window);
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) || Phone::instance().is_back_clicked())
     {
         is_reading = false;
         for(int i = 0; i<notes.size(); i++)
             notes[i].setStatus(false);
     }
+    if(is_reading)
+        Phone::instance().enable_menu();
+    else
+        Phone::instance().disable_menu();
 }
 void NoteSystem::restart_notecheck()
 {

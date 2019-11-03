@@ -9,6 +9,7 @@
 #include <iostream>
 #include "TextureManager.h"
 #include "Player.h"
+//#include "CameraSystem.h"
 
 class LightSource
 {
@@ -17,9 +18,9 @@ public:
     :m_dynamic(dynamic),grow_distance(grow_distance)
     {
         m_flashlightTexture.create(60, 60);
-        
+
         generateSpot();
-        
+
         light.setTexture(m_flashlightTexture.getTexture(), true);
         light.setPosition(position);
         light.setOrigin(30.f, 30.f);
@@ -30,16 +31,17 @@ public:
     void generateSpot()
     {
         m_flashlightTexture.clear();
-        
+
         // Draw 6 circles with increasing transparency
         for(unsigned int i = 0; i < 15; ++i)
         {
-            sf::CircleShape temp(30.f-(i*2.f));
-            temp.setOrigin(sf::Vector2f(30.f-(i*2.f), 30.f-(i*2.f)));
+            sf::CircleShape temp(30.f-(i*1.f));
+            temp.setOrigin(sf::Vector2f(30.f-(i*1.f), 30.f-(i*1.f)));
             //temp.setFillColor(sf::Color(30+(i*10), 30+(i*10), 30+(i*10), 30+(i*10))); //temp.setFillColor(sf::Color(255, 255, 255, 61-(i*10)));
-            temp.setFillColor(sf::Color(255-i*17,255-i*17,255-i*17,255-i*17));
+                    //temp.setFillColor(sf::Color(255-i*21.25,255-i*21.25,255-i*21.25,255-i*21.25));
+                temp.setFillColor(sf::Color(255-i*8.5,255-i*8.5,255-i*8.5,255-i*8.5));
             temp.setPosition(sf::Vector2f(30.f, 30.f));
-            
+
             m_flashlightTexture.draw(temp, sf::BlendNone);
         }
         m_flashlightTexture.display();
@@ -48,7 +50,7 @@ public:
     {
         if(grow)
         {
-            light.setScale(light.getScale().x+0.1*(default_size.x+default_size.x/grow_distance-light.getScale().x+0.1), light.getScale().y+0.1*(default_size.x+default_size.x/grow_distance-light.getScale().x+0.1));
+            light.setScale(light.getScale().x+0.1*(default_size.x+default_size.x/grow_distance-light.getScale().x+0.6), light.getScale().y+0.1*(default_size.x+default_size.x/grow_distance-light.getScale().x+0.6));
         }
         else
             light.setScale(light.getScale().x-0.1*(light.getScale().x-default_size.x+default_size.x/grow_distance-0.1), light.getScale().y-0.1*(light.getScale().x-default_size.x+default_size.x/grow_distance-0.1));
@@ -83,7 +85,6 @@ public:
         m_flashlight.setTexture(m_flashlightTexture.getTexture(), true);
         m_flashlight.setPosition(150.f, 150.f);
         m_flashlight.setOrigin(30.f, 30.f);
-
         m_sprite.setTexture(m_layer.getTexture());
     }
     ~Flashlight();
@@ -107,9 +108,23 @@ public:
         m_flashlight.setScale(10,10);
         m_flashlightTexture.display();
     }
-
-    void run(sf::RenderWindow& window,bool draw_flash)
+    void draw(sf::RenderWindow& window,bool draw_flash)
     {
+        for(auto& src : sources)
+            {
+                m_layer.draw(src->getSource(),sf::BlendMultiply);
+            }
+            if(draw_flash)
+            {
+                m_layer.draw(m_flashlight, sf::BlendMultiply);
+            }
+            m_layer.display();
+            // Draw the layer sprite on top of the 'scene'
+            window.draw(m_sprite);
+    }
+    void run()
+    {
+        m_layer.clear(sf::Color(0,0,0,darkness_level));
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         {
             for(auto& src : sources)
@@ -125,27 +140,19 @@ public:
             }
         }
             // Update the position of the 'flashlight' to the current mouse position
-        m_flashlight.setPosition(click.getPosition());
-
+        //m_flashlight.setPosition(sf::Vector2f(click.getPosition().x+camera.getOffset().x,click.getPosition().y+camera.getOffset().y));
+        m_flashlight.setPosition(sf::Vector2f(click.getPosition().x-offset.x,click.getPosition().y-offset.y));
             // Stance-out the 'flashlight' circle
-            m_layer.clear(sf::Color(0,0,0,darkness_level));
-            m_flashlight.setColor(sf::Color(0,0,0,darkness_level));
+
+            m_flashlight.setColor(sf::Color(0,0,0,255));
             for(auto& src : sources)
             {
-                src->getSource().setColor(sf::Color(0,0,0,darkness_level));
+                src->getSource().setColor(sf::Color(0,0,0,255));
                 if(src->is_dynamic())
                     src->update();
                 //src->getSource().setPosition(click.getPosition());
             }
-            for(auto& src : sources)
-                m_layer.draw(src->getSource(),sf::BlendNone);
-            if(draw_flash)
-            {
-                m_layer.draw(m_flashlight, sf::BlendNone);
-            }
-            m_layer.display();
-            // Draw the layer sprite on top of the 'scene'
-            window.draw(m_sprite);
+
     }
     static void setLevel(float level)
     {
@@ -169,6 +176,11 @@ public:
     {
         sources.emplace_back(new LightSource(position,size,is_dynamic,grow_distance));
     }
+    void delete_source(int index)
+    {
+        delete sources[index];
+        sources.erase(sources.begin()+index);
+    }
     void eraseSources()
     {
         for(int i = 0; i<sources.size(); i++)
@@ -182,6 +194,9 @@ public:
         static Flashlight temp;
         return temp;
     }
+    const sf::FloatRect getDrawArea(){return m_sprite.getGlobalBounds();}
+    void move(float x, float y){m_sprite.move(x,y);offset.x+=x;offset.y+=y;}
+    void move_sources(float x, float y);
 private:
     sf::RenderTexture m_flashlightTexture;
     sf::RenderTexture m_layer;
@@ -189,8 +204,10 @@ private:
     sf::Sprite m_sprite;
     sf::Vector2f m_pos;
     Click& click = Click::instance();
+    //CameraSystem& camera = CameraSystem::instance();
     static float darkness_level;
     float last_pos;
     std::vector<LightSource*>sources;
+    sf::Vector2f offset = sf::Vector2f(0,0);
 };
 #endif // FLASHLIGHT_H

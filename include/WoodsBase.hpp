@@ -1,11 +1,3 @@
-//
-//  WoodsBase.hpp
-//  dark_forest
-//
-//  Created by Filip Szafran on 07/08/2019.
-//  Copyright © 2019 Filip Szafran. All rights reserved.
-//
-
 #ifndef WoodsBase_hpp
 #define WoodsBase_hpp
 
@@ -16,12 +8,13 @@
 #include "TextureManager.h"
 #include "Player.h"
 #include "Timer.hpp"
-
+#include "Flashlight.h"
 
 struct movable
 {
     virtual void move(float x, float y) = 0;
     float m_distance = 1;
+    virtual ~movable(){}
 };
 void move(movable&, bool right);
 
@@ -38,6 +31,7 @@ public:
     bool is_tree(){return tree.getTexture()==TextureManager::get("tree");}
     void setPosition(const sf::Vector2f& position){tree.setPosition(position);}
     sf::Vector2f getDefaultPosition(){return default_position;}
+    void setColor(sf::Color color){tree.setColor(color);}
 private:
     sf::Sprite tree;
     sf::Vector2f default_position;
@@ -48,12 +42,17 @@ class ForestObject
 {
 public:
     void draw(sf::RenderWindow&);
+    void update();
+    void sunset();
     void add_object(forest_object&&);
     void sort(){std::sort(objects.begin(),objects.end());}
-    void add_position(float position);
+    void add_position(float positionx, float positiony = 0);
+    void move_forest(int speed);
     void loadDefaultForest();
 private:
+    Player& player = Player::instance();
     std::vector<forest_object> objects;
+    Flashlight& flash = Flashlight::instance();
 };
 
 #endif /* WoodsBase_hpp */
